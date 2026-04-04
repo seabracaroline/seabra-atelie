@@ -62,11 +62,27 @@ function editarCliente(index) {
 }
 
 function excluirCliente(index) {
+  const clienteRemovido = clientes[index].nome;
+
+  // Remove o cliente
   clientes.splice(index, 1);
   salvarClientes();
+
+  // Remove todos os pedidos desse cliente
+  for (let i = pedidos.length - 1; i >= 0; i--) {
+    if (pedidos[i].cliente === clienteRemovido) {
+      pedidos.splice(i, 1);
+    }
+  }
+  salvarPedidos();
+
+  // Atualiza tabelas e calendário
   atualizarClientes();
   atualizarClientesSelect();
-  mostrarMensagem("mensagemCliente", "Cliente excluído com sucesso!", "erro");
+  atualizarPedidos();
+  atualizarCalendario();
+
+  mostrarMensagem("mensagemCliente", "Cliente e pedidos excluídos com sucesso!", "erro");
 }
 
 // =========================
