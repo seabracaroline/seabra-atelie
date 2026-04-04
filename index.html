@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Seabra Ateliê - Gestão</title>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+
+  <!-- Favicon -->
+  <link rel="icon" href="logo.png">
+
+  <!-- FullCalendar -->
+  <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- ================= HEADER ================= -->
+  <header>
+    <div class="marca">
+      <img src="logo.png" alt="Logo Seabra Ateliê">
+      <h1>Seabra Ateliê</h1>
+      <p>Dedicação e Arte</p>
+    </div>
+  </header>
+
+  <!-- ================= MAIN ================= -->
+  <main>
+
+    <!-- Boas-vindas -->
+    <section class="boas-vindas">
+      <h2>Gestão do Ateliê</h2>
+      <p>Organize seus clientes e pedidos com elegância, controle e praticidade.</p>
+    </section>
+
+    <!-- ================= CLIENTES ================= -->
+    <section id="clientes">
+      <h2>Cadastro de Clientes</h2>
+
+      <!-- Mensagem de feedback -->
+      <div id="mensagemCliente" class="mensagem-sucesso" style="display:none;"></div>
+
+      <form id="clienteForm">
+        <label for="nomeCliente">Nome</label>
+        <input type="text" id="nomeCliente" required>
+
+        <label for="telefoneCliente">Telefone</label>
+        <input type="text" id="telefoneCliente" maxlength="15" placeholder="(DDD) 99999-9999">
+
+        <label for="emailCliente">E-mail</label>
+        <input type="email" id="emailCliente">
+
+        <div class="acoes">
+          <button type="submit">Salvar Cliente</button>
+          <button type="button" id="btnMostrarClientes">Relação de Clientes</button>
+          <button type="button" id="btnOcultarClientes">Ocultar</button>
+        </div>
+      </form>
+
+      <div id="clientesTable" style="display:none;">
+        <table>
+          <thead>
+            <tr>
+              <th>Nome</th>
+              <th>Telefone</th>
+              <th>E-mail</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- JS insere dados aqui -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ================= PEDIDOS ================= -->
+    <section id="pedidos">
+      <h2>Cadastro de Pedidos</h2>
+
+      <!-- Mensagem de feedback -->
+      <div id="mensagemPedido" class="mensagem-sucesso" style="display:none;"></div>
+
+      <form id="pedidoForm">
+        <label for="clientePedido">Cliente</label>
+        <select id="clientePedido" required>
+          <option value="">Selecione o cliente</option>
+        </select>
+
+        <label for="produto">Produto</label>
+        <input type="text" id="produto" required>
+
+        <label for="quantidade">Quantidade</label>
+        <input type="number" id="quantidade" required>
+
+        <label for="dataPedido">Data</label>
+        <input type="date" id="dataPedido" required>
+
+        <label for="status">Status</label>
+        <select id="status">
+          <option value="Pendente">Pendente</option>
+          <option value="Em andamento">Em andamento</option>
+          <option value="Concluído">Concluído</option>
+          <option value="Cancelado">Cancelado</option>
+        </select>
+
+        <div class="acoes">
+          <button type="submit">Salvar Pedido</button>
+          <button type="button" id="btnMostrarPedidos">Relação de Pedidos</button>
+          <button type="button" id="btnOcultarPedidos">Ocultar</button>
+        </div>
+      </form>
+
+      <div id="pedidosTable" style="display:none;">
+        <table>
+          <thead>
+            <tr>
+              <th>Cliente</th>
+              <th>Produto</th>
+              <th>Quantidade</th>
+              <th>Data</th>
+              <th>Status</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- JS insere dados aqui -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ================= CALENDÁRIO ================= -->
+    <section id="agenda">
+      <h2>Agenda de Pedidos</h2>
+      <div id="calendar"></div>
+    </section>
+
+  </main>
+
+  <!-- ================= FOOTER ================= -->
+  <footer>
+    <p>© 2026 Seabra Ateliê — Sistema Interno</p>
+  </footer>
+
+  <!-- FullCalendar -->
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+
+  <!-- JS -->
+  <script src="script.js"></script> 
+
+</body>
+</html>
