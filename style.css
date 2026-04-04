@@ -187,6 +187,10 @@ tr:hover td {
   font-size: 0.8em;
   border-radius: 4px;
   font-weight: 500;
+  display: inline-block;
+  min-width: 100px; /* garante espaço para o texto */
+  text-align: center;
+
 }
 
 .status.concluido {
@@ -260,6 +264,17 @@ tr:hover td {
   font-size: 1.5em;
   letter-spacing: 1px;
 }
+
+.fc-event-title {
+  white-space: normal !important; /* permite quebra de linha */
+  font-size: 0.9em;               /* ajusta tamanho para caber melhor */
+  line-height: 1.2em;             /* melhora legibilidade */
+}
+
+.fc-event {
+  min-width: 120px;               /* garante espaço mínimo para o texto */
+}
+
 
 /* =========================
    RESPONSIVIDADE
