@@ -1,278 +1,157 @@
-// =========================
-// VARIÁVEIS E LOCALSTORAGE
-// =========================
-const clientes = JSON.parse(localStorage.getItem("clientes")) || [];
-const pedidos = JSON.parse(localStorage.getItem("pedidos")) || [];
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Seabra Ateliê - Gestão</title>
 
-// Funções utilitárias
-function salvarClientes() {
-  localStorage.setItem("clientes", JSON.stringify(clientes));
-}
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
 
-function salvarPedidos() {
-  localStorage.setItem("pedidos", JSON.stringify(pedidos));
-}
+  <!-- Favicon -->
+  <link rel="icon" href="logo.png">
 
-// =========================
-// FEEDBACK VISUAL
-// =========================
-function mostrarMensagem(id, texto, tipo = "sucesso") {
-  const div = document.getElementById(id);
-  div.textContent = texto;
-  div.className = tipo === "sucesso" ? "mensagem-sucesso" : "mensagem-erro";
-  div.style.display = "block";
-  setTimeout(() => div.style.display = "none", 3000);
-}
+  <!-- FullCalendar -->
+  <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet">
 
-// =========================
-// CLIENTES
-// =========================
-function atualizarClientes() {
-  const tabela = document.querySelector("#clientesTable tbody");
-  tabela.innerHTML = "";
-  clientes.forEach((c, index) => {
-    tabela.innerHTML += `
-      <tr>
-        <td>${c.nome}</td>
-        <td>${c.telefone}</td>
-        <td>${c.email}</td>
-        <td>
-          <button onclick="editarCliente(${index})">Editar</button>
-          <button onclick="excluirCliente(${index})">Excluir</button>
-        </td>
-      </tr>`;
-  });
-}
+  <!-- CSS -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
 
-function atualizarClientesSelect() {
-  const select = document.getElementById("clientePedido");
-  select.innerHTML = '<option value="">Selecione o cliente</option>';
-  clientes.forEach((c, index) => {
-    select.innerHTML += `<option value="${index}">${c.nome}</option>`;
-  });
-}
+  <!-- ================= HEADER ================= -->
+  <header>
+    <div class="marca">
+      <img src="logo.png" alt="Logo Seabra Ateliê">
+      <h1>Seabra Ateliê</h1>
+      <p>Dedicação e Arte</p>
+    </div>
+  </header>
 
-function editarCliente(index) {
-  const cliente = clientes[index];
-  document.getElementById("nomeCliente").value = cliente.nome;
-  document.getElementById("telefoneCliente").value = cliente.telefone;
-  document.getElementById("emailCliente").value = cliente.email;
+  <!-- ================= MAIN ================= -->
+  <main>
 
-  document.getElementById("clienteForm").dataset.editIndex = index;
-}
+    <!-- Boas-vindas -->
+    <section class="boas-vindas">
+      <h2>Gestão do Ateliê</h2>
+      <p>Organize seus clientes e pedidos com elegância, controle e praticidade.</p>
+    </section>
 
-function excluirCliente(index) {
-  const clienteRemovido = clientes[index].nome;
+    <!-- ================= CLIENTES ================= -->
+    <section id="clientes">
+      <h2>Cadastro de Clientes</h2>
 
-  // Remove o cliente
-  clientes.splice(index, 1);
-  salvarClientes();
+      <!-- Mensagem de feedback -->
+      <div id="mensagemCliente" class="mensagem-sucesso" style="display:none;"></div>
 
-  // Remove todos os pedidos desse cliente
-  for (let i = pedidos.length - 1; i >= 0; i--) {
-    if (pedidos[i].cliente === clienteRemovido) {
-      pedidos.splice(i, 1);
-    }
-  }
-  salvarPedidos();
+      <form id="clienteForm">
+        <label for="nomeCliente">Nome</label>
+        <input type="text" id="nomeCliente" required>
 
-  // Atualiza tabelas e calendário
-  atualizarClientes();
-  atualizarClientesSelect();
-  atualizarPedidos();
-  atualizarCalendario();
+        <label for="telefoneCliente">Telefone</label>
+        <input type="text" id="telefoneCliente" maxlength="15" placeholder="(DDD) 99999-9999">
 
-  mostrarMensagem("mensagemCliente", "Cliente e pedidos excluídos com sucesso!", "erro");
-}
+        <label for="emailCliente">E-mail</label>
+        <input type="email" id="emailCliente">
 
-// =========================
-// PEDIDOS
-// =========================
-function atualizarPedidos() {
-  const tabela = document.querySelector("#pedidosTable tbody");
-  tabela.innerHTML = "";
-  pedidos.forEach((p, index) => {
-    tabela.innerHTML += `
-      <tr>
-        <td>${p.cliente}</td>
-        <td>${p.produto}</td>
-        <td>${p.quantidade}</td>
-        <td>${p.data}</td>
-        <td><span class="status ${p.status.toLowerCase()}">${p.status}</span></td>
-        <td>
-          <button onclick="concluirPedido(${index})">Concluir</button>
-          <button onclick="editarPedido(${index})">Editar</button>
-          <button onclick="excluirPedido(${index})">Excluir</button>
-        </td>
-      </tr>`;
-  });
-}
+        <div class="acoes">
+          <button type="submit">Salvar Cliente</button>
+          <button type="button" id="btnMostrarClientes">Relação de Clientes</button>
+          <button type="button" id="btnOcultarClientes">Ocultar</button>
+        </div>
+      </form>
 
-function mostrarTabela(tipo) {
-  document.getElementById("clientesTable").style.display = tipo === "clientes" ? "block" : "none";
-  document.getElementById("pedidosTable").style.display = tipo === "pedidos" ? "block" : "none";
-}
+      <div id="clientesTable" style="display:none;">
+        <table>
+          <thead>
+            <tr>
+              <th>Nome</th>
+              <th>Telefone</th>
+              <th>E-mail</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- JS insere dados aqui -->
+          </tbody>
+        </table>
+      </div>
+    </section>
 
-function ocultarTabelas() {
-  document.getElementById("clientesTable").style.display = "none";
-  document.getElementById("pedidosTable").style.display = "none";
-}
+    <!-- ================= PEDIDOS ================= -->
+    <section id="pedidos">
+      <h2>Cadastro de Pedidos</h2>
 
-function concluirPedido(index) {
-  pedidos[index].status = "Concluído";
-  salvarPedidos();
-  atualizarPedidos();
-  atualizarCalendario();
-  mostrarMensagem("mensagemPedido", "Pedido concluído com sucesso!");
-}
+      <!-- Mensagem de feedback -->
+      <div id="mensagemPedido" class="mensagem-sucesso" style="display:none;"></div>
 
-function editarPedido(index) {
-  const pedido = pedidos[index];
-  document.getElementById("clientePedido").value = clientes.findIndex(c => c.nome === pedido.cliente);
-  document.getElementById("produto").value = pedido.produto;
-  document.getElementById("quantidade").value = pedido.quantidade;
-  document.getElementById("dataPedido").value = pedido.data;
-  document.getElementById("status").value = pedido.status;
+      <form id="pedidoForm">
+        <label for="clientePedido">Cliente</label>
+        <select id="clientePedido" required>
+          <option value="">Selecione o cliente</option>
+        </select>
 
-  document.getElementById("pedidoForm").dataset.editIndex = index;
-}
+        <label for="produto">Produto</label>
+        <input type="text" id="produto" required>
 
-function excluirPedido(index) {
-  pedidos.splice(index, 1);
-  salvarPedidos();
-  atualizarPedidos();
-  atualizarCalendario();
-  mostrarMensagem("mensagemPedido", "Pedido excluído com sucesso!", "erro");
-}
+        <label for="quantidade">Quantidade</label>
+        <input type="number" id="quantidade" required>
 
-// =========================
-// CALENDÁRIO
-// =========================
-function adicionarEventoCalendario(pedido) {
-  let cor;
-  switch (pedido.status) {
-    case "Concluído": cor = "#c6a13a"; break; // dourado
-    case "Em andamento": cor = "#1e6b3a"; break; // verde
-    case "Cancelado": cor = "#999999"; break; // cinza
-    default: cor = "#6b1e1e"; // vinho para pendente
-  }
-  calendar.addEvent({
-    title: `${pedido.cliente} - ${pedido.produto} (${pedido.status})`,
-    start: pedido.data,
-    allDay: true,
-    color: cor
-  });
-}
+        <label for="dataPedido">Data</label>
+        <input type="date" id="dataPedido" required>
 
-function atualizarCalendario() {
-  calendar.removeAllEvents();
-  pedidos.forEach(adicionarEventoCalendario);
-}
+        <label for="status">Status</label>
+        <select id="status">
+          <option value="Pendente">Pendente</option>
+          <option value="Em andamento">Em andamento</option>
+          <option value="Concluído">Concluído</option>
+          <option value="Cancelado">Cancelado</option>
+        </select>
 
-// =========================
-// EVENTOS DE FORMULÁRIOS
-// =========================
-document.getElementById("clienteForm").addEventListener("submit", e => {
-  e.preventDefault();
-  const cliente = {
-    nome: document.getElementById("nomeCliente").value,
-    telefone: document.getElementById("telefoneCliente").value,
-    email: document.getElementById("emailCliente").value
-  };
+        <div class="acoes">
+          <button type="submit">Salvar Pedido</button>
+          <button type="button" id="btnMostrarPedidos">Relação de Pedidos</button>
+          <button type="button" id="btnOcultarPedidos">Ocultar</button>
+        </div>
+      </form>
 
-  const editIndex = e.target.dataset.editIndex;
-  if (editIndex !== undefined) {
-    clientes[editIndex] = cliente;
-    delete e.target.dataset.editIndex;
-    mostrarMensagem("mensagemCliente", "Cliente atualizado com sucesso!");
-  } else {
-    clientes.push(cliente);
-    mostrarMensagem("mensagemCliente", "Cliente salvo com sucesso!");
-  }
+      <div id="pedidosTable" style="display:none;">
+        <table>
+          <thead>
+            <tr>
+              <th>Cliente</th>
+              <th>Produto</th>
+              <th>Quantidade</th>
+              <th>Data</th>
+              <th>Status</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- JS insere dados aqui -->
+          </tbody>
+        </table>
+      </div>
+    </section>
 
-  salvarClientes();
-  atualizarClientes();
-  atualizarClientesSelect();
-  e.target.reset();
-});
+    <!-- ================= CALENDÁRIO ================= -->
+    <section id="agenda">
+      <h2>Agenda de Pedidos</h2>
+      <div id="calendar"></div>
+    </section>
 
-document.getElementById("pedidoForm").addEventListener("submit", e => {
-  e.preventDefault();
-  const clienteIndex = document.getElementById("clientePedido").value;
-  const pedido = {
-    cliente: clientes[clienteIndex]?.nome || "Não informado",
-    produto: document.getElementById("produto").value,
-    quantidade: document.getElementById("quantidade").value,
-    data: document.getElementById("dataPedido").value,
-    status: document.getElementById("status").value
-  };
+  </main>
 
-  const editIndex = e.target.dataset.editIndex;
-  if (editIndex !== undefined) {
-    pedidos[editIndex] = pedido;
-    delete e.target.dataset.editIndex;
-    mostrarMensagem("mensagemPedido", "Pedido atualizado com sucesso!");
-  } else {
-    pedidos.push(pedido);
-    mostrarMensagem("mensagemPedido", "Pedido salvo com sucesso!");
-  }
+  <!-- ================= FOOTER ================= -->
+  <footer>
+    <p>© 2026 Seabra Ateliê — Sistema Interno</p>
+  </footer>
 
-  salvarPedidos();
-  atualizarPedidos();
-  atualizarCalendario();
-  e.target.reset();
-});
+  <!-- FullCalendar -->
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
 
-// =========================
-// INICIALIZAÇÃO
-// =========================
-document.addEventListener("DOMContentLoaded", function () {
-  atualizarClientes();
-  atualizarClientesSelect();
-  atualizarPedidos();
+  <!-- JS -->
+  <script src="script.js"></script> 
 
-  const calendarEl = document.getElementById("calendar");
-  window.calendar = new FullCalendar.Calendar(calendarEl, {
-    initialView: "dayGridMonth",
-    locale: "pt-br",
-    headerToolbar: {
-      left: "prev,next today",
-      center: "title",
-      right: "dayGridMonth,timeGridWeek"
-    }
-  });
-
-  calendar.render();
-  pedidos.forEach(adicionarEventoCalendario);
-
-  // Eventos dos botões de mostrar/ocultar tabelas
-  document.getElementById("btnMostrarClientes").addEventListener("click", () => {
-    mostrarTabela("clientes");
-  });
-
-  document.getElementById("btnOcultarClientes").addEventListener("click", () => {
-    ocultarTabelas();
-  });
-
-  document.getElementById("btnMostrarPedidos").addEventListener("click", () => {
-    mostrarTabela("pedidos");
-  });
-
-  document.getElementById("btnOcultarPedidos").addEventListener("click", () => {
-    ocultarTabelas();
-  });
-
-  // Máscara para telefone (DDD) 99999-9999
-  document.getElementById("telefoneCliente").addEventListener("input", function(e) {
-    let valor = e.target.value.replace(/\D/g, ""); // remove tudo que não for número
-    if (valor.length > 11) valor = valor.slice(0, 11); // limita a 11 dígitos
-
-    if (valor.length > 6) {
-      e.target.value = `(${valor.slice(0,2)}) ${valor.slice(2,7)}-${valor.slice(7)}`;
-    } else if (valor.length > 2) {
-      e.target.value = `(${valor.slice(0,2)}) ${valor.slice(2)}`;
-    } else {
-      e.target.value = valor;
-    }
-  });
-});
+</body>
+</html>
