@@ -204,6 +204,13 @@ document.getElementById("clienteForm").addEventListener("submit", e => {
     return;
   }
 
+  // Verificação de duplicidade de telefone
+const telefoneDuplicado = clientes.some(c => c.telefone === telefone);
+if (telefoneDuplicado && e.target.dataset.editIndex === undefined) {
+  mostrarMensagem("mensagemCliente", "Telefone já cadastrado!", "erro");
+  return;
+}
+
   const cliente = { nome, telefone, email };
 
   const editIndex = e.target.dataset.editIndex;
@@ -225,10 +232,18 @@ document.getElementById("clienteForm").addEventListener("submit", e => {
 document.getElementById("pedidoForm").addEventListener("submit", e => {
   e.preventDefault();
   const clienteIndex = document.getElementById("clientePedido").value;
+  const quantidade = parseInt(document.getElementById("quantidade").value, 10);
+
+  // Validação da quantidade
+  if (isNaN(quantidade) || quantidade <= 0) {
+    mostrarMensagem("mensagemPedido", "Quantidade inválida! Deve ser maior que zero.", "erro");
+    return;
+  }
+
   const pedido = {
     cliente: clientes[clienteIndex]?.nome || "Não informado",
     produto: document.getElementById("produto").value,
-    quantidade: document.getElementById("quantidade").value,
+    quantidade: quantidade,
     data: document.getElementById("dataPedido").value,
     status: document.getElementById("status").value
   };
