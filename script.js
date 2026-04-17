@@ -52,6 +52,10 @@ function atualizarClientesSelect() {
   });
 }
 
+function limparFormulario() {
+  document.getElementById("clienteForm").reset();
+}
+
 function editarCliente(index) {
   const cliente = clientes[index];
   document.getElementById("nomeCliente").value = cliente.nome;
