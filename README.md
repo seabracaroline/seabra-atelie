@@ -52,7 +52,6 @@ Melhorias implementadas nesta versão:
 ## 🖥️ Como executar o sistema
 
 ### 🔹 Opção 1: Acessar online
-Acesse diretamente pelo navegador:
 
 👉 https://seabracaroline.github.io/seabra-atelie/
 
@@ -63,3 +62,58 @@ Acesse diretamente pelo navegador:
 1. Clone o repositório:
 ```bash
 git clone https://github.com/seabracaroline/seabra-atelie
+```
+
+2. Acesse a pasta do projeto
+
+3. Abra o arquivo:
+
+```bash
+index.html
+```
+
+👉 O sistema será carregado no navegador
+
+---
+
+## 🛠️ Tecnologias utilizadas
+
+- HTML5
+- CSS3
+- JavaScript
+- FullCalendar
+- GitHub Pages
+
+---
+
+## 📁 Estrutura do Projeto
+
+```
+📦 seabra-atelie
+ ┣ 📄 index.html
+ ┣ 📄 style.css
+ ┣ 📄 script.js
+ ┣ 📄 logo.png
+ ┗ 📄 README.md
+```
+
+---
+
+## 📌 Controle de Versão
+
+- 🔖 v1 → Primeira versão do sistema  
+- 🔖 v2 → Versão com melhorias (Iteração 2)  
+
+---
+
+## 👩‍💻 Autores
+
+- Carolina  
+- Lara Camargo Vianna  
+- Nathalia  
+
+---
+
+## 📄 Licença
+
+Projeto acadêmico desenvolvido para fins educacionais.
