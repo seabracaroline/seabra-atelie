@@ -1,10 +1,6 @@
-// =========================
-// VARIÁVEIS E LOCALSTORAGE
-// =========================
 const clientes = JSON.parse(localStorage.getItem("clientes")) || [];
 const pedidos = JSON.parse(localStorage.getItem("pedidos")) || [];
 
-// Funções utilitárias
 function salvarClientes() {
   localStorage.setItem("clientes", JSON.stringify(clientes));
 }
@@ -13,23 +9,29 @@ function salvarPedidos() {
   localStorage.setItem("pedidos", JSON.stringify(pedidos));
 }
 
-// =========================
-// FEEDBACK VISUAL
-// =========================
 function mostrarMensagem(id, texto, tipo = "sucesso") {
   const div = document.getElementById(id);
   div.textContent = texto;
   div.className = tipo === "sucesso" ? "mensagem-sucesso" : "mensagem-erro";
   div.style.display = "block";
-  setTimeout(() => div.style.display = "none", 3000);
+
+  setTimeout(() => {
+    div.style.display = "none";
+  }, 3000);
 }
 
-// =========================
-// CLIENTES
-// =========================
+function gerarClasseStatus(status) {
+  return status
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/\s+/g, "-");
+}
+
 function atualizarClientes() {
   const tabela = document.querySelector("#clientesTable tbody");
   tabela.innerHTML = "";
+
   clientes.forEach((c, index) => {
     tabela.innerHTML += `
       <tr>
@@ -47,17 +49,21 @@ function atualizarClientes() {
 function atualizarClientesSelect() {
   const select = document.getElementById("clientePedido");
   select.innerHTML = '<option value="">Selecione o cliente</option>';
+
   clientes.forEach((c, index) => {
     select.innerHTML += `<option value="${index}">${c.nome}</option>`;
   });
 }
 
 function limparFormulario() {
-  document.getElementById("clienteForm").reset();
+  const form = document.getElementById("clienteForm");
+  form.reset();
+  delete form.dataset.editIndex;
 }
 
 function editarCliente(index) {
   const cliente = clientes[index];
+
   document.getElementById("nomeCliente").value = cliente.nome;
   document.getElementById("telefoneCliente").value = cliente.telefone;
   document.getElementById("emailCliente").value = cliente.email;
@@ -67,22 +73,22 @@ function editarCliente(index) {
 
 function excluirCliente(index) {
   if (!confirm("Tem certeza que deseja excluir?")) {
-    return;}
+    return;
+  }
+
   const clienteRemovido = clientes[index].nome;
 
-  // Remove o cliente
   clientes.splice(index, 1);
   salvarClientes();
 
-  // Remove todos os pedidos desse cliente
   for (let i = pedidos.length - 1; i >= 0; i--) {
     if (pedidos[i].cliente === clienteRemovido) {
       pedidos.splice(i, 1);
     }
   }
+
   salvarPedidos();
 
-  // Atualiza tabelas e calendário
   atualizarClientes();
   atualizarClientesSelect();
   atualizarPedidos();
@@ -91,20 +97,20 @@ function excluirCliente(index) {
   mostrarMensagem("mensagemCliente", "Cliente e pedidos excluídos com sucesso!", "sucesso");
 }
 
-// =========================
-// PEDIDOS
-// =========================
 function atualizarPedidos() {
   const tabela = document.querySelector("#pedidosTable tbody");
   tabela.innerHTML = "";
+
   pedidos.forEach((p, index) => {
+    const classeStatus = gerarClasseStatus(p.status);
+
     tabela.innerHTML += `
       <tr>
         <td>${p.cliente}</td>
         <td>${p.produto}</td>
         <td>${p.quantidade}</td>
         <td>${p.data}</td>
-        <td><span class="status ${p.status.toLowerCase()}">${p.status}</span></td>
+        <td><span class="status ${classeStatus}">${p.status}</span></td>
         <td>
           <button onclick="concluirPedido(${index})">Concluir</button>
           <button onclick="editarPedido(${index})">Editar</button>
@@ -115,25 +121,38 @@ function atualizarPedidos() {
 }
 
 function mostrarTabela(tipo) {
-  document.getElementById("clientesTable").style.display = tipo === "clientes" ? "block" : "none";
-  document.getElementById("pedidosTable").style.display = tipo === "pedidos" ? "block" : "none";
+  if (tipo === "clientes") {
+    document.getElementById("clientesTable").style.display = "block";
+  }
+
+  if (tipo === "pedidos") {
+    document.getElementById("pedidosTable").style.display = "block";
+  }
 }
 
-function ocultarTabelas() {
-  document.getElementById("clientesTable").style.display = "none";
-  document.getElementById("pedidosTable").style.display = "none";
+function ocultarTabela(tipo) {
+  if (tipo === "clientes") {
+    document.getElementById("clientesTable").style.display = "none";
+  }
+
+  if (tipo === "pedidos") {
+    document.getElementById("pedidosTable").style.display = "none";
+  }
 }
 
 function concluirPedido(index) {
   pedidos[index].status = "Concluído";
+
   salvarPedidos();
   atualizarPedidos();
   atualizarCalendario();
+
   mostrarMensagem("mensagemPedido", "Pedido concluído com sucesso!");
 }
 
 function editarPedido(index) {
   const pedido = pedidos[index];
+
   document.getElementById("clientePedido").value = clientes.findIndex(c => c.nome === pedido.cliente);
   document.getElementById("produto").value = pedido.produto;
   document.getElementById("quantidade").value = pedido.quantidade;
@@ -147,24 +166,33 @@ function excluirPedido(index) {
   if (!confirm("Tem certeza que deseja excluir este pedido?")) {
     return;
   }
+
   pedidos.splice(index, 1);
+
   salvarPedidos();
   atualizarPedidos();
   atualizarCalendario();
+
   mostrarMensagem("mensagemPedido", "Pedido excluído com sucesso!", "erro");
 }
 
-// =========================
-// CALENDÁRIO
-// =========================
 function adicionarEventoCalendario(pedido) {
   let cor;
+
   switch (pedido.status) {
-    case "Concluído": cor = "#c6a13a"; break; // dourado
-    case "Em andamento": cor = "#1e6b3a"; break; // verde
-    case "Cancelado": cor = "#999999"; break; // cinza
-    default: cor = "#6b1e1e"; // vinho para pendente
+    case "Concluído":
+      cor = "#c6a13a";
+      break;
+    case "Em andamento":
+      cor = "#1e6b3a";
+      break;
+    case "Cancelado":
+      cor = "#999999";
+      break;
+    default:
+      cor = "#6b1e1e";
   }
+
   calendar.addEvent({
     title: `${pedido.cliente} - ${pedido.produto} (${pedido.status})`,
     start: pedido.data,
@@ -174,55 +202,57 @@ function adicionarEventoCalendario(pedido) {
 }
 
 function atualizarCalendario() {
+  if (!window.calendar) return;
+
   calendar.removeAllEvents();
   pedidos.forEach(adicionarEventoCalendario);
 }
 
-// =========================
-// EVENTOS DE FORMULÁRIOS
-// =========================
 document.getElementById("clienteForm").addEventListener("submit", e => {
   e.preventDefault();
+
   const nome = document.getElementById("nomeCliente").value.trim();
   const telefone = document.getElementById("telefoneCliente").value.trim();
   const email = document.getElementById("emailCliente").value.trim();
+  const editIndex = e.target.dataset.editIndex;
 
-  // Validação do nome
   if (!nome) {
     mostrarMensagem("mensagemCliente", "Nome é obrigatório!", "erro");
     return;
   }
 
-  // Validação do telefone
   const regexTelefone = /^\(\d{2}\)\s\d{4,5}-\d{4}$/;
+
   if (!regexTelefone.test(telefone)) {
     mostrarMensagem("mensagemCliente", "Telefone inválido! Use o formato (XX) XXXXX-XXXX", "erro");
     return;
   }
 
-  // Validação do e-mail
   if (!email.includes("@")) {
     mostrarMensagem("mensagemCliente", "E-mail inválido!", "erro");
     return;
   }
 
-  // 🚨 Verificação de duplicidade de e-mail
-  const emailDuplicado = clientes.some(c => c.email === email);
-  if (emailDuplicado && e.target.dataset.editIndex === undefined) {
+  const emailDuplicado = clientes.some((c, i) => c.email === email && i != editIndex);
+
+  if (emailDuplicado) {
     mostrarMensagem("mensagemCliente", "E-mail já cadastrado!", "erro");
     return;
   }
 
-  // Verificação de duplicidade de telefone
-const telefoneDuplicado = clientes.some(c => c.telefone === telefone);
-if (telefoneDuplicado && e.target.dataset.editIndex === undefined) {
-  mostrarMensagem("mensagemCliente", "Telefone já cadastrado!", "erro");
-  return;
-}
+  const telefoneDuplicado = clientes.some((c, i) => c.telefone === telefone && i != editIndex);
 
-  const cliente = { nome, telefone, email };
+  if (telefoneDuplicado) {
+    mostrarMensagem("mensagemCliente", "Telefone já cadastrado!", "erro");
+    return;
+  }
 
-  const editIndex = e.target.dataset.editIndex;
+  const cliente = {
+    nome,
+    telefone,
+    email
+  };
+
   if (editIndex !== undefined) {
     clientes[editIndex] = cliente;
     delete e.target.dataset.editIndex;
@@ -240,24 +270,43 @@ if (telefoneDuplicado && e.target.dataset.editIndex === undefined) {
 
 document.getElementById("pedidoForm").addEventListener("submit", e => {
   e.preventDefault();
-  const clienteIndex = document.getElementById("clientePedido").value;
-  const quantidade = parseInt(document.getElementById("quantidade").value, 10);
 
-  // Validação da quantidade
+  const clienteIndex = document.getElementById("clientePedido").value;
+  const produto = document.getElementById("produto").value.trim();
+  const quantidade = parseInt(document.getElementById("quantidade").value, 10);
+  const data = document.getElementById("dataPedido").value;
+  const status = document.getElementById("status").value;
+
+  if (clienteIndex === "") {
+    mostrarMensagem("mensagemPedido", "Selecione um cliente!", "erro");
+    return;
+  }
+
+  if (!produto) {
+    mostrarMensagem("mensagemPedido", "Informe o produto!", "erro");
+    return;
+  }
+
   if (isNaN(quantidade) || quantidade <= 0) {
     mostrarMensagem("mensagemPedido", "Quantidade inválida! Deve ser maior que zero.", "erro");
     return;
   }
 
+  if (!data) {
+    mostrarMensagem("mensagemPedido", "Informe a data do pedido!", "erro");
+    return;
+  }
+
   const pedido = {
-    cliente: clientes[clienteIndex]?.nome || "Não informado",
-    produto: document.getElementById("produto").value,
-    quantidade: quantidade,
-    data: document.getElementById("dataPedido").value,
-    status: document.getElementById("status").value
+    cliente: clientes[clienteIndex].nome,
+    produto,
+    quantidade,
+    data,
+    status
   };
 
   const editIndex = e.target.dataset.editIndex;
+
   if (editIndex !== undefined) {
     pedidos[editIndex] = pedido;
     delete e.target.dataset.editIndex;
@@ -273,15 +322,13 @@ document.getElementById("pedidoForm").addEventListener("submit", e => {
   e.target.reset();
 });
 
-// =========================
-// INICIALIZAÇÃO
-// =========================
 document.addEventListener("DOMContentLoaded", function () {
   atualizarClientes();
   atualizarClientesSelect();
   atualizarPedidos();
 
   const calendarEl = document.getElementById("calendar");
+
   window.calendar = new FullCalendar.Calendar(calendarEl, {
     initialView: "dayGridMonth",
     locale: "pt-br",
@@ -293,15 +340,34 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   calendar.render();
-  pedidos.forEach(adicionarEventoCalendario);
+  atualizarCalendario();
 
-  // Eventos dos botões de mostrar/ocultar tabelas
+  document.querySelectorAll(".aba").forEach(botao => {
+    botao.addEventListener("click", () => {
+      document.querySelectorAll(".aba").forEach(b => b.classList.remove("ativa"));
+      botao.classList.add("ativa");
+
+      document.querySelectorAll(".conteudo-aba").forEach(secao => {
+        secao.classList.remove("ativo");
+      });
+
+      const idAba = botao.dataset.aba;
+      document.getElementById(idAba).classList.add("ativo");
+
+      if (idAba === "agenda") {
+        setTimeout(() => {
+          calendar.updateSize();
+        }, 100);
+      }
+    });
+  });
+
   document.getElementById("btnMostrarClientes").addEventListener("click", () => {
     mostrarTabela("clientes");
   });
 
   document.getElementById("btnOcultarClientes").addEventListener("click", () => {
-    ocultarTabelas();
+    ocultarTabela("clientes");
   });
 
   document.getElementById("btnMostrarPedidos").addEventListener("click", () => {
@@ -309,13 +375,15 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   document.getElementById("btnOcultarPedidos").addEventListener("click", () => {
-    ocultarTabelas();
+    ocultarTabela("pedidos");
   });
 
-  // Máscara para telefone (DDD) 99999-9999
   document.getElementById("telefoneCliente").addEventListener("input", function(e) {
-    let valor = e.target.value.replace(/\D/g, ""); // remove tudo que não for número
-    if (valor.length > 11) valor = valor.slice(0, 11); // limita a 11 dígitos
+    let valor = e.target.value.replace(/\D/g, "");
+
+    if (valor.length > 11) {
+      valor = valor.slice(0, 11);
+    }
 
     if (valor.length > 6) {
       e.target.value = `(${valor.slice(0,2)}) ${valor.slice(2,7)}-${valor.slice(7)}`;
