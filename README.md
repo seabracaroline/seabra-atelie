@@ -82,3 +82,14 @@ seabra-atelie/
 ├── script.js
 ├── logo.png
 └── README.md
+
+## Autoras
+
+Projeto desenvolvido por:
+
+- **Caroline Ap. Seabra**
+- **Lara C. Vianna**
+- **Natalia D. A. Madeira**
+
+**Universidade Presbiteriana Mackenzie**  
+Curso: **Análise e Desenvolvimento de Sistemas**
