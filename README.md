@@ -82,6 +82,7 @@ seabra-atelie/
 ├── script.js
 ├── logo.png
 └── README.md
+```
 
 ## Autoras
 
