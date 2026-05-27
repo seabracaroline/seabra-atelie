@@ -380,7 +380,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   document.getElementById("telefoneCliente").addEventListener("input", function(e) {
     let valor = e.target.value.replace(/\D/g, "");
-
+    
     if (valor.length > 11) {
       valor = valor.slice(0, 11);
     }
